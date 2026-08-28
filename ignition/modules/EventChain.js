@@ -1,8 +1,13 @@
 const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
-const secret = require('../../.secret.json');
 
 module.exports = buildModule("EventChain", (m) => {
-  const eventChainContract = m.contract("EventChainContract", [secret.ownerKey]);
-  const eventChainEventManagerContract = m.contract("EventChainEventManagerContract", [secret.ownerKey, eventChainContract]);
+  const deployer = m.getAccount(0);
+
+  const eventChainContract = m.contract("EventChainContract", [deployer]);
+  const eventChainEventManagerContract = m.contract("EventChainEventManagerContract", [
+    deployer,
+    eventChainContract,
+  ]);
+
   return { eventChainContract, eventChainEventManagerContract };
 });

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EventChain - Digital Event Tickets</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Ethers.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
+
+  <!-- Spacious Top Header -->
+  <header class="nav-header">
+    <div class="max-w-7xl mx-auto px-6 sm:px-10 h-20 flex items-center justify-between">
+      
+      <!-- Brand -->
+      <a href="index.html" class="flex items-center gap-3 text-slate-900 font-bold text-xl decoration-0">
+        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white text-base">
+          <i class="fa-solid fa-ticket"></i>
+        </div>
+        <span class="tracking-tight">EventChain</span>
+      </a>
+
+      <!-- Spacious Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-2">
+        <a href="index.html" class="nav-link active">Home & Events</a>
+        <a href="organizer.html" class="nav-link">Create Event</a>
+        <a href="tickets.html" class="nav-link">My Tickets</a>
+        <a href="verifier.html" class="nav-link">Check-In Scanner</a>
+        <a href="settings.html" class="nav-link">Settings</a>
+      </nav>
+
+      <!-- Wallet Controls -->
+      <div class="flex items-center gap-3">
+        <button id="btn-switch-network" class="hidden sm:flex items-center gap-2 px-3 py-1.5 text-xs font-mono bg-slate-100 text-slate-700 rounded-lg border border-slate-200 hover:bg-slate-200 transition-colors">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span id="network-badge">Sepolia Testnet</span>
+        </button>
+
+        <div id="user-address-pill" class="hidden items-center gap-2 px-3 py-1.5 text-xs font-mono bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
+          <span class="address-text font-semibold">0x...</span>
+        </div>
+
+        <button id="btn-connect-wallet" class="btn-primary">
+          <i class="fa-brands fa-ethereum"></i> Connect Wallet
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="md:hidden mobile-nav">
+    <a href="index.html" class="active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+    <a href="organizer.html">
+      <i class="fa-solid fa-plus-circle"></i>
+      <span>Create</span>
+    </a>
+    <a href="tickets.html">
+      <i class="fa-solid fa-ticket"></i>
+      <span>Tickets</span>
+    </a>
+    <a href="verifier.html">
+      <i class="fa-solid fa-qrcode"></i>
+      <span>Scanner</span>
+    </a>
+    <a href="settings.html">
+      <i class="fa-solid fa-gear"></i>
+      <span>Settings</span>
+    </a>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-6 sm:px-10 py-10 w-full flex-1 space-y-12">
+    
+    <!-- Hero Section -->
+    <div class="clean-card p-8 sm:p-12 bg-white border border-slate-200 space-y-8">
+      <div class="max-w-3xl space-y-4">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+          <i class="fa-solid fa-shield-halved text-blue-600"></i> Fake-Proof Digital Ticketing
+        </span>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+          Simple, Safe & Fair Event Tickets
+        </h1>
+        <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
+          Create events, send real digital tickets to guests, and check them in at the door with QR codes. No fake tickets and no unfair scalping prices.
+        </p>
+        <div class="pt-2 flex flex-wrap gap-3">
+          <a href="organizer.html" class="btn-primary text-sm py-2.5 px-5">
+            <i class="fa-solid fa-calendar-plus"></i> Create an Event
+          </a>
+          <a href="tickets.html" class="btn-secondary text-sm py-2.5 px-5">
+            <i class="fa-solid fa-ticket"></i> View My Tickets
+          </a>
+        </div>
+      </div>
+
+      <!-- How It Works Guide (3 Simple Steps) -->
+      <div class="pt-8 border-t border-slate-200">
+        <h2 class="text-lg font-bold text-slate-900 mb-6">How It Works (In 3 Easy Steps):</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Step 1 -->
+          <div class="p-5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+            <div class="w-9 h-9 rounded-lg bg-blue-600 text-white font-bold text-sm flex items-center justify-center">1</div>
+            <h3 class="font-bold text-slate-900 text-base">Connect Your Wallet</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Click "Connect Wallet" at the top right with MetaMask. Your wallet acts like a safe digital pocket that holds your tickets.
+            </p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="p-5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+            <div class="w-9 h-9 rounded-lg bg-blue-600 text-white font-bold text-sm flex items-center justify-center">2</div>
+            <h3 class="font-bold text-slate-900 text-base">Create & Issue Tickets</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Organizers fill out event details (name, date, price) and send digital tickets directly to guests' wallet addresses.
+            </p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="p-5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+            <div class="w-9 h-9 rounded-lg bg-blue-600 text-white font-bold text-sm flex items-center justify-center">3</div>
+            <h3 class="font-bold text-slate-900 text-base">Show QR Code to Enter</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Guests open "My Tickets" on their phone, show their QR pass at the entrance, and the venue scanner checks them in instantly!
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Events Directory -->
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Upcoming Events</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Events currently available to get tickets for.</p>
+        </div>
+        <a href="organizer.html" class="btn-primary text-xs">
+          <i class="fa-solid fa-plus"></i> Create New Event
+        </a>
+      </div>
+
+      <!-- Events Grid -->
+      <div id="events-directory" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Dynamically Rendered -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-6 left-6 sm:left-auto sm:right-6 z-50 flex flex-col gap-2 max-w-sm pointer-events-none *:pointer-events-auto"></div>
+
+  <!-- Footer -->
+  <footer class="hidden md:block bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-6 sm:px-10 flex justify-between items-center">
+      <span>EventChain • Simple & Secure Digital Ticketing</span>
+      <span class="font-mono">Ethereum Sepolia Testnet</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('events-directory');
+      const events = state.eventsList;
+      if (!container) return;
+
+      if (events.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full clean-card p-10 text-center space-y-3">
+            <i class="fa-solid fa-calendar-xmark text-4xl text-slate-300"></i>
+            <h3 class="text-base font-bold text-slate-800">No Events Created Yet</h3>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto">Create your first event to start issuing digital tickets to your guests.</p>
+            <div class="pt-1">
+              <a href="organizer.html" class="btn-primary text-xs">
+                <i class="fa-solid fa-plus"></i> Create First Event
+              </a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = events.map(ev => `
+        <div class="clean-card p-6 flex flex-col justify-between space-y-5">
+          <div class="space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="px-2.5 py-1 rounded text-xs font-mono font-semibold bg-slate-100 text-slate-700">Event #${ev.id}</span>
+              <span class="text-blue-600 font-bold font-mono text-base">${ev.price} ETH</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900">${ev.name}</h3>
+            <div class="space-y-1.5 text-xs text-slate-600">
+              <div class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-slate-400 w-4"></i> <span>${ev.location}</span></div>
+              <div class="flex items-center gap-2"><i class="fa-regular fa-calendar text-slate-400 w-4"></i> <span>${ev.date}</span></div>
+            </div>
+          </div>
+          <a href="organizer.html?mintEvent=${ev.id}" class="btn-secondary text-xs text-center justify-center w-full py-2.5">
+            Give Ticket to Someone →
+          </a>
+        </div>
+      `).join('');
+    });
+  </script>
+</body>
+</html>

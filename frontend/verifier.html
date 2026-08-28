@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Door Check-In Scanner - EventChain</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Ethers.js & HTML5 QR Scanner -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
+
+  <!-- Spacious Top Header -->
+  <header class="nav-header">
+    <div class="max-w-7xl mx-auto px-6 sm:px-10 h-20 flex items-center justify-between">
+      
+      <!-- Brand -->
+      <a href="index.html" class="flex items-center gap-3 text-slate-900 font-bold text-xl decoration-0">
+        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white text-base">
+          <i class="fa-solid fa-ticket"></i>
+        </div>
+        <span class="tracking-tight">EventChain</span>
+      </a>
+
+      <!-- Spacious Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-2">
+        <a href="index.html" class="nav-link">Home & Events</a>
+        <a href="organizer.html" class="nav-link">Create Event</a>
+        <a href="tickets.html" class="nav-link">My Tickets</a>
+        <a href="verifier.html" class="nav-link active">Check-In Scanner</a>
+        <a href="settings.html" class="nav-link">Settings</a>
+      </nav>
+
+      <!-- Wallet Controls -->
+      <div class="flex items-center gap-3">
+        <div id="user-address-pill" class="hidden items-center gap-2 px-3 py-1.5 text-xs font-mono bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
+          <span class="address-text font-semibold">0x...</span>
+        </div>
+
+        <button id="btn-connect-wallet" class="btn-primary">
+          <i class="fa-brands fa-ethereum"></i> Connect Wallet
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="md:hidden mobile-nav">
+    <a href="index.html">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+    <a href="organizer.html">
+      <i class="fa-solid fa-plus-circle"></i>
+      <span>Create</span>
+    </a>
+    <a href="tickets.html">
+      <i class="fa-solid fa-ticket"></i>
+      <span>Tickets</span>
+    </a>
+    <a href="verifier.html" class="active">
+      <i class="fa-solid fa-qrcode"></i>
+      <span>Scanner</span>
+    </a>
+    <a href="settings.html">
+      <i class="fa-solid fa-gear"></i>
+      <span>Settings</span>
+    </a>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-6 py-10 w-full flex-1 space-y-8">
+    
+    <!-- Title -->
+    <div class="border-b border-slate-200 pb-5">
+      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Door Check-In Scanner</h1>
+      <p class="text-sm text-slate-500 mt-1">Scan a guest's QR code or type their Ticket ID to verify their ticket and let them in.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+      
+      <!-- Manual Lookup & Results -->
+      <div class="clean-card p-6 sm:p-8 space-y-5">
+        <h3 class="text-base font-bold text-slate-900">Type Ticket ID</h3>
+        <p class="text-xs text-slate-500">If the guest cannot show their QR code, type their Ticket Number (e.g. 0, 1, 2) here.</p>
+        
+        <div class="flex gap-2">
+          <input id="verify-manual-token" type="number" placeholder="Enter Ticket Number" class="clean-input font-mono flex-1" />
+          <button id="btn-manual-verify" class="btn-primary shrink-0">
+            Check Ticket
+          </button>
+        </div>
+
+        <!-- Result Box -->
+        <div id="verify-result-card" class="hidden p-5 rounded-lg border space-y-4">
+          <div class="flex justify-between items-center">
+            <span id="result-status-title" class="font-bold text-sm"></span>
+            <span id="result-badge-used" class="px-2.5 py-0.5 rounded text-xs font-bold"></span>
+          </div>
+
+          <div class="text-xs text-slate-600 space-y-1.5 font-mono">
+            <div>Ticket ID: <strong id="result-token-id"></strong></div>
+            <div>Event: <strong id="result-event-name"></strong></div>
+            <div>Guest: <strong id="result-owner-addr" class="truncate block"></strong></div>
+            <div>Transfers: <strong id="result-transfers-count"></strong></div>
+          </div>
+
+          <button id="btn-validate-checkin" class="btn-primary w-full justify-center py-2.5">
+            <i class="fa-solid fa-check"></i> Check-In Guest & Let Them In
+          </button>
+        </div>
+      </div>
+
+      <!-- Camera Scanner -->
+      <div class="clean-card p-6 sm:p-8 space-y-4">
+        <h3 class="text-base font-bold text-slate-900">Camera QR Scanner</h3>
+        <div class="bg-slate-100 rounded-lg p-3 min-h-[240px] flex items-center justify-center border border-slate-200">
+          <div id="qr-reader" class="w-full"></div>
+        </div>
+        <p class="text-xs text-slate-500 text-center">Point your camera at the guest's mobile phone screen.</p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-6 left-6 sm:left-auto sm:right-6 z-50 flex flex-col gap-2 max-w-sm pointer-events-none *:pointer-events-auto"></div>
+
+  <!-- Footer -->
+  <footer class="hidden md:block bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-6 sm:px-10 flex justify-between items-center">
+      <span>EventChain • Simple & Secure Digital Ticketing</span>
+      <span class="font-mono">Ethereum Sepolia Testnet</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    let currentValidatedToken = null;
+
+    async function executeVerification(tokenId) {
+      currentValidatedToken = tokenId;
+      const resultCard = document.getElementById('verify-result-card');
+      const statusTitle = document.getElementById('result-status-title');
+      const badgeUsed = document.getElementById('result-badge-used');
+      const tokenIdDisplay = document.getElementById('result-token-id');
+      const eventNameDisplay = document.getElementById('result-event-name');
+      const ownerDisplay = document.getElementById('result-owner-addr');
+      const transfersDisplay = document.getElementById('result-transfers-count');
+      const checkInBtn = document.getElementById('btn-validate-checkin');
+
+      showToast(`Checking Ticket #${tokenId}...`, "info");
+
+      let isUsed = false;
+      let isValid = true;
+      let owner = "0x...";
+      let eventDetails = "Event Ticket";
+      let historyCount = 1;
+
+      if (state.contracts.eventChain) {
+        try {
+          const status = await state.contracts.eventChain.getTicketStatus(tokenId);
+          isUsed = status[0];
+          isValid = status[1];
+          owner = await state.contracts.eventChain.ownerOf(tokenId);
+          const history = await state.contracts.eventChain.getTicketHistory(tokenId);
+          historyCount = history.length;
+        } catch (err) {
+          const localTicket = state.myTickets.find(t => t.tokenId == tokenId);
+          if (localTicket) {
+            isUsed = localTicket.isUsed;
+            isValid = localTicket.isValid;
+            owner = localTicket.owner;
+            eventDetails = localTicket.eventName;
+            historyCount = localTicket.history ? localTicket.history.length : 1;
+          }
+        }
+      } else {
+        const localTicket = state.myTickets.find(t => t.tokenId == tokenId);
+        if (localTicket) {
+          isUsed = localTicket.isUsed;
+          isValid = localTicket.isValid;
+          owner = localTicket.owner;
+          eventDetails = localTicket.eventName;
+          historyCount = localTicket.history ? localTicket.history.length : 1;
+        }
+      }
+
+      tokenIdDisplay.textContent = `#${tokenId}`;
+      eventNameDisplay.textContent = eventDetails;
+      ownerDisplay.textContent = `${owner.slice(0, 10)}...${owner.slice(-4)}`;
+      transfersDisplay.textContent = `${historyCount}`;
+
+      resultCard.classList.remove('hidden');
+
+      if (!isUsed && isValid) {
+        resultCard.className = "p-5 rounded-lg border border-emerald-300 bg-emerald-50 space-y-4";
+        statusTitle.className = "font-bold text-sm text-emerald-900";
+        statusTitle.textContent = "VALID TICKET - OK TO ENTER";
+        badgeUsed.className = "px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-200 text-emerald-800";
+        badgeUsed.textContent = "ACTIVE";
+        checkInBtn.classList.remove('hidden');
+        showToast("Ticket is valid! You can check the guest in.", "success");
+      } else {
+        resultCard.className = "p-5 rounded-lg border border-rose-300 bg-rose-50 space-y-4";
+        statusTitle.className = "font-bold text-sm text-rose-900";
+        statusTitle.textContent = isUsed ? "CANNOT ENTER: ALREADY USED" : "INVALID TICKET";
+        badgeUsed.className = "px-2.5 py-0.5 rounded text-xs font-bold bg-rose-200 text-rose-800";
+        badgeUsed.textContent = "ALREADY USED";
+        checkInBtn.classList.add('hidden');
+        showToast("Ticket was already used or is invalid!", "error");
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btn-manual-verify')?.addEventListener('click', () => {
+        const val = document.getElementById('verify-manual-token').value.trim();
+        if (val !== "") executeVerification(val);
+      });
+
+      document.getElementById('btn-validate-checkin')?.addEventListener('click', async () => {
+        if (currentValidatedToken === null) return;
+        const btn = document.getElementById('btn-validate-checkin');
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking in...`;
+
+        try {
+          if (state.contracts.eventChain) {
+            const tx = await state.contracts.eventChain.validateTicket(currentValidatedToken);
+            showToast("Recording check-in...", "info");
+            const receipt = await tx.wait();
+            showToast(`Ticket #${currentValidatedToken} checked in! Guest may enter.`, "success");
+            addActivityLog("TicketCheckedIn", `Ticket #${currentValidatedToken} redeemed at door`, receipt.hash);
+          } else {
+            await new Promise(r => setTimeout(r, 400));
+            showToast(`Ticket #${currentValidatedToken} checked in! Guest may enter.`, "success");
+            addActivityLog("TicketCheckedIn", `Ticket #${currentValidatedToken} redeemed at door`);
+          }
+
+          const local = state.myTickets.find(t => t.tokenId == currentValidatedToken);
+          if (local) {
+            local.isUsed = true;
+            saveTickets(state.myTickets);
+          }
+
+          executeVerification(currentValidatedToken);
+        } catch (err) {
+          showToast(err.reason || err.message || "Check-in failed", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<i class="fa-solid fa-check"></i> Check-In Guest & Let Them In`;
+        }
+      });
+
+      // QR Scanner
+      try {
+        const html5QrCode = new Html5Qrcode("qr-reader");
+        html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 180, height: 180 } },
+          (decodedText) => {
+            try {
+              const data = JSON.parse(decodedText);
+              if (data.tokenId !== undefined) executeVerification(data.tokenId);
+            } catch (e) {
+              if (!isNaN(decodedText)) executeVerification(decodedText);
+            }
+          },
+          (errorMessage) => {}
+        ).catch(err => {
+          document.getElementById('qr-reader').innerHTML = `
+            <div class="text-center py-6 text-xs text-slate-500 font-mono">
+              Camera not active. Type the Ticket Number on the left.
+            </div>
+          `;
+        });
+      } catch (err) {
+        console.warn("QR scanner error:", err);
+      }
+    });
+  </script>
+</body>
+</html>

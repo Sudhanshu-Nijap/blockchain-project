@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Event & Issue Tickets - EventChain</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Ethers.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
+
+  <!-- Spacious Top Header -->
+  <header class="nav-header">
+    <div class="max-w-7xl mx-auto px-6 sm:px-10 h-20 flex items-center justify-between">
+      
+      <!-- Brand -->
+      <a href="index.html" class="flex items-center gap-3 text-slate-900 font-bold text-xl decoration-0">
+        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white text-base">
+          <i class="fa-solid fa-ticket"></i>
+        </div>
+        <span class="tracking-tight">EventChain</span>
+      </a>
+
+      <!-- Spacious Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-2">
+        <a href="index.html" class="nav-link">Home & Events</a>
+        <a href="organizer.html" class="nav-link active">Create Event</a>
+        <a href="tickets.html" class="nav-link">My Tickets</a>
+        <a href="verifier.html" class="nav-link">Check-In Scanner</a>
+        <a href="settings.html" class="nav-link">Settings</a>
+      </nav>
+
+      <!-- Wallet Controls -->
+      <div class="flex items-center gap-3">
+        <div id="user-address-pill" class="hidden items-center gap-2 px-3 py-1.5 text-xs font-mono bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
+          <span class="address-text font-semibold">0x...</span>
+        </div>
+
+        <button id="btn-connect-wallet" class="btn-primary">
+          <i class="fa-brands fa-ethereum"></i> Connect Wallet
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="md:hidden mobile-nav">
+    <a href="index.html">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+    <a href="organizer.html" class="active">
+      <i class="fa-solid fa-plus-circle"></i>
+      <span>Create</span>
+    </a>
+    <a href="tickets.html">
+      <i class="fa-solid fa-ticket"></i>
+      <span>Tickets</span>
+    </a>
+    <a href="verifier.html">
+      <i class="fa-solid fa-qrcode"></i>
+      <span>Scanner</span>
+    </a>
+    <a href="settings.html">
+      <i class="fa-solid fa-gear"></i>
+      <span>Settings</span>
+    </a>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-6 py-10 w-full flex-1 space-y-8">
+    
+    <!-- Title -->
+    <div class="border-b border-slate-200 pb-5">
+      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Organizer Dashboard</h1>
+      <p class="text-sm text-slate-500 mt-1">Create your event and send digital tickets directly to guests.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex border-b border-slate-200 gap-8 text-sm font-medium">
+      <button id="tab-btn-create" onclick="showOrganizerTab('create')" class="pb-3.5 border-b-2 border-blue-600 text-blue-600 font-semibold transition-all">
+        1. Create Event
+      </button>
+      <button id="tab-btn-issue" onclick="showOrganizerTab('issue')" class="pb-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 transition-all">
+        2. Send Ticket to Guest
+      </button>
+      <button id="tab-btn-events" onclick="showOrganizerTab('events')" class="pb-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 transition-all">
+        3. My Created Events
+      </button>
+    </div>
+
+    <!-- TAB 1: CREATE EVENT -->
+    <div id="tab-content-create" class="clean-card p-6 sm:p-8 space-y-5">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">Step 1: Event Details</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Fill in where and when your event will take place.</p>
+      </div>
+
+      <form id="form-create-event" class="space-y-4">
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Event Name</label>
+          <input id="event-name" type="text" placeholder="e.g. Annual Music Festival 2026" required class="clean-input" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Location / Venue</label>
+          <input id="event-location" type="text" placeholder="e.g. City Concert Hall, Hall A" required class="clean-input" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Date</label>
+            <input id="event-date" type="date" required class="clean-input" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Original Ticket Price (ETH)</label>
+            <input id="event-price" type="number" step="0.0001" placeholder="0.01" required class="clean-input font-mono" />
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+          <label class="block text-xs font-semibold text-slate-800">Maximum Allowed Resale Price (ETH)</label>
+          <p class="text-xs text-slate-500">
+            This prevents ticket scalpers. If a guest tries to resell their ticket above this amount, the system automatically blocks it.
+          </p>
+          <input id="event-max-resale" type="number" step="0.0001" placeholder="e.g. 0.012 (Leave blank for default 20% cap)" class="clean-input font-mono mt-1" />
+        </div>
+
+        <div class="pt-2">
+          <button id="btn-submit-event" type="submit" class="btn-primary w-full sm:w-auto">
+            <i class="fa-solid fa-check"></i> Save & Publish Event
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- TAB 2: MINT TICKET -->
+    <div id="tab-content-issue" class="hidden clean-card p-6 sm:p-8 space-y-5">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">Step 2: Send Ticket to a Guest</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Select the event and type the guest's wallet address to send them a ticket.</p>
+      </div>
+
+      <form id="form-mint-ticket" class="space-y-4">
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Select Event</label>
+          <select id="mint-event-id" required class="clean-input font-mono">
+            <option value="">No events found. Please create an event in Step 1 first.</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Guest's Wallet Address</label>
+          <input id="mint-recipient" type="text" placeholder="0x... (Ask your guest for their MetaMask address)" required class="clean-input font-mono" />
+          <span class="text-[11px] text-slate-400 mt-1 block">The digital ticket pass will appear in this person's "My Tickets" tab immediately.</span>
+        </div>
+
+        <div class="pt-2">
+          <button id="btn-submit-mint" type="submit" class="btn-primary w-full sm:w-auto">
+            <i class="fa-solid fa-paper-plane"></i> Send Ticket to Guest
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- TAB 3: EVENTS LIST -->
+    <div id="tab-content-events" class="hidden space-y-4">
+      <div id="events-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Dynamically Rendered -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-6 left-6 sm:left-auto sm:right-6 z-50 flex flex-col gap-2 max-w-sm pointer-events-none *:pointer-events-auto"></div>
+
+  <!-- Footer -->
+  <footer class="hidden md:block bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-6 sm:px-10 flex justify-between items-center">
+      <span>EventChain • Simple & Secure Digital Ticketing</span>
+      <span class="font-mono">Ethereum Sepolia Testnet</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    function showOrganizerTab(tab) {
+      ['create', 'issue', 'events'].forEach(t => {
+        document.getElementById(`tab-content-${t}`)?.classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (btn) {
+          if (t === tab) {
+            btn.className = "pb-3.5 border-b-2 border-blue-600 text-blue-600 font-semibold transition-all";
+          } else {
+            btn.className = "pb-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 transition-all";
+          }
+        }
+      });
+    }
+
+    function renderEventsList() {
+      const container = document.getElementById('events-container');
+      const eventSelect = document.getElementById('mint-event-id');
+      if (!container) return;
+
+      if (state.eventsList.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full clean-card p-10 text-center space-y-3">
+            <p class="text-sm text-slate-500">You haven't created any events yet.</p>
+            <button onclick="showOrganizerTab('create')" class="btn-primary text-xs">Create an Event Now</button>
+          </div>
+        `;
+        if (eventSelect) eventSelect.innerHTML = `<option value="">No events available</option>`;
+        return;
+      }
+
+      if (eventSelect) {
+        eventSelect.innerHTML = state.eventsList.map(ev => `<option value="${ev.id}">#${ev.id} - ${ev.name} (${ev.price} ETH)</option>`).join('');
+      }
+
+      container.innerHTML = state.eventsList.map(ev => `
+        <div class="clean-card p-5 space-y-3">
+          <div class="flex justify-between items-start">
+            <span class="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-slate-100 text-slate-700">Event #${ev.id}</span>
+            <span class="text-blue-600 font-bold font-mono text-sm">${ev.price} ETH</span>
+          </div>
+          <h3 class="text-base font-bold text-slate-900">${ev.name}</h3>
+          <div class="space-y-1 text-xs text-slate-500">
+            <div>${ev.location}</div>
+            <div>${ev.date}</div>
+          </div>
+          <button onclick="document.getElementById('mint-event-id').value = '${ev.id}'; showOrganizerTab('issue');" class="btn-secondary text-xs w-full justify-center">
+            Send Tickets for this Event →
+          </button>
+        </div>
+      `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderEventsList();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const preselectedEvent = urlParams.get('mintEvent');
+      if (preselectedEvent) {
+        showOrganizerTab('issue');
+        if (document.getElementById('mint-event-id')) {
+          document.getElementById('mint-event-id').value = preselectedEvent;
+        }
+      }
+
+      // 1. Create Event Form
+      document.getElementById('form-create-event')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('event-name').value.trim();
+        const location = document.getElementById('event-location').value.trim();
+        const date = document.getElementById('event-date').value.trim();
+        const price = document.getElementById('event-price').value.trim();
+        const maxResale = document.getElementById('event-max-resale')?.value.trim() || (Number(price) * 1.2).toFixed(3);
+
+        const btn = document.getElementById('btn-submit-event');
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+
+        try {
+          if (!state.contracts.eventManager) {
+            await new Promise(r => setTimeout(r, 400));
+            const newId = state.eventsList.length;
+            const newEvent = { id: newId, name, location, date, price, maxResalePrice: maxResale, organizer: state.userAddress || "0xWallet" };
+            state.eventsList.push(newEvent);
+            saveEvents(state.eventsList);
+            renderEventsList();
+            showToast(`Event "${name}" created!`, "success");
+            addActivityLog("EventCreated", `ID: #${newId} | ${name} | ${price} ETH`);
+          } else {
+            const priceInWei = ethers.parseEther(price);
+            const tx = await state.contracts.eventManager.createEvent(name, location, date, priceInWei);
+            showToast("Saving event to the system...", "info");
+            const receipt = await tx.wait();
+            const newId = state.eventsList.length;
+            const newEvent = { id: newId, name, location, date, price, maxResalePrice: maxResale, organizer: state.userAddress };
+            state.eventsList.push(newEvent);
+            saveEvents(state.eventsList);
+            renderEventsList();
+            showToast("Event published successfully!", "success");
+            addActivityLog("EventCreated", `${name} (${price} ETH)`, receipt.hash);
+          }
+          e.target.reset();
+          showOrganizerTab('issue');
+        } catch (err) {
+          showToast(err.reason || err.message || "Failed to create event", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<i class="fa-solid fa-check"></i> Save & Publish Event`;
+        }
+      });
+
+      // 2. Issue Ticket Form
+      document.getElementById('form-mint-ticket')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const eventId = document.getElementById('mint-event-id').value.trim();
+        const recipient = document.getElementById('mint-recipient').value.trim();
+        const uri = `https://eventchain.io/ticket/${eventId}`;
+
+        const btn = document.getElementById('btn-submit-mint');
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sending ticket...`;
+
+        try {
+          if (!state.contracts.eventManager) {
+            await new Promise(r => setTimeout(r, 400));
+            const event = state.eventsList.find(ev => ev.id == eventId) || { name: `Event #${eventId}`, price: "0.01", maxResalePrice: "0.012" };
+            const newTicketId = state.myTickets.length;
+            const newTicket = {
+              tokenId: newTicketId,
+              eventId: Number(eventId),
+              eventName: event.name,
+              owner: recipient,
+              price: event.price,
+              expirationDate: new Date(Date.now() + 7 * 86400000).toLocaleDateString(),
+              isUsed: false,
+              isValid: true,
+              maxResalePrice: event.maxResalePrice || (Number(event.price) * 1.2).toFixed(3),
+              history: [state.userAddress || "0xOrganizer", recipient]
+            };
+            state.myTickets.push(newTicket);
+            saveTickets(state.myTickets);
+            showToast(`Ticket #${newTicketId} sent to guest!`, "success");
+            addActivityLog("TicketIssued", `Ticket #${newTicketId} sent to ${recipient.slice(0, 6)}...`);
+          } else {
+            const tx = await state.contracts.eventManager.mintTicket(eventId, recipient, uri);
+            showToast("Sending ticket to guest's wallet...", "info");
+            const receipt = await tx.wait();
+            const event = state.eventsList.find(ev => ev.id == eventId) || { name: `Event #${eventId}`, price: "0.01", maxResalePrice: "0.012" };
+            const newTicketId = state.myTickets.length;
+            const newTicket = {
+              tokenId: newTicketId,
+              eventId: Number(eventId),
+              eventName: event.name,
+              owner: recipient,
+              price: event.price,
+              expirationDate: new Date(Date.now() + 7 * 86400000).toLocaleDateString(),
+              isUsed: false,
+              isValid: true,
+              maxResalePrice: event.maxResalePrice || (Number(event.price) * 1.2).toFixed(3),
+              history: [state.userAddress || "0xOrganizer", recipient]
+            };
+            state.myTickets.push(newTicket);
+            saveTickets(state.myTickets);
+            showToast(`Ticket #${newTicketId} delivered to guest!`, "success");
+            addActivityLog("TicketIssued", `Event #${eventId} (Ticket #${newTicketId}) to ${recipient.slice(0, 6)}...`, receipt.hash);
+          }
+          e.target.reset();
+        } catch (err) {
+          showToast(err.reason || err.message || "Failed to send ticket", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Send Ticket to Guest`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

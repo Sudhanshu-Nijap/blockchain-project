@@ -2,11 +2,23 @@
   "name": "EventChain",
   "version": "0.0.1",
   "description": "EventChain is a cutting-edge blockchain ticketing system designed for security, transparency, and trust. Using NFTs on the Ethereum blockchain, EventChain ensures each ticket is unique, tamper-proof, and traceable.",
-  "author": "Sergio Sánchez Sánchez",
+  "author": "Sudhanshu Nijap",
   "license": "MIT",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "node": "hardhat node",
+    "deploy:local": "hardhat ignition deploy ignition/modules/EventChain.js --network localhost",
+    "deploy:amoy": "hardhat ignition deploy ignition/modules/EventChain.js --network amoy",
+    "deploy:sepolia": "hardhat ignition deploy ignition/modules/EventChain.js --network sepolia",
+    "serve": "npx serve frontend -p 3000"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "hardhat": "^2.22.5",
-    "@openzeppelin/contracts": "^5.0.0"
+    "@openzeppelin/contracts": "^5.0.0",
+    "hardhat": "^2.22.5"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
   }
 }

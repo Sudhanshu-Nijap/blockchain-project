@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --border: #e2e8f0;
+  --border-focus: #2563eb;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-bottom: 0;
+  }
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Spacious Navigation Styles */
+.nav-header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.nav-link {
+  color: #475569;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 500;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.nav-link:hover {
+  color: #0f172a;
+  background-color: #f1f5f9;
+}
+
+.nav-link.active {
+  color: var(--primary);
+  background-color: #eff6ff;
+  font-weight: 600;
+}
+
+/* Simple Clean Card */
+.clean-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Simple Clean Input */
+.clean-input {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  color: #0f172a;
+  font-size: 15px;
+  padding: 0.65rem 0.85rem;
+  width: 100%;
+  transition: border-color 0.15s ease;
+}
+
+.clean-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* Simple Clean Button */
+.btn-primary {
+  background-color: var(--primary);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background-color: #ffffff;
+  color: #334155;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.btn-secondary:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Simple Ticket Pass */
+.ticket-box {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.ticket-divider {
+  border-top: 1px dashed #cbd5e1;
+  margin: 1.25rem 0;
+}
+
+/* Spacious Mobile Bottom Bar */
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  text-align: center;
+  z-index: 40;
+  padding: 0.4rem 0 calc(0.4rem + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-nav a {
+  padding: 0.5rem 0.2rem;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.mobile-nav a.active {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.mobile-nav a i {
+  font-size: 1.2rem;
+}
+
+/* Simple Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  padding: 1.75rem;
+  max-width: 25rem;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
