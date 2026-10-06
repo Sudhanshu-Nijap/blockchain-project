@@ -163,13 +163,25 @@ function renderActivityFeed() {
   `).join('');
 }
 
+// Helper function to resolve Web3 provider (handles multi-wallet extensions & standard window.ethereum)
+function getEthereumProvider() {
+  if (typeof window !== 'undefined' && window.ethereum) {
+    if (Array.isArray(window.ethereum.providers) && window.ethereum.providers.length > 0) {
+      return window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum.providers[0];
+    }
+    return window.ethereum;
+  }
+  return null;
+}
+
 // Initialize Web3
 async function initWeb3() {
   const config = getConfig();
+  const ethereum = getEthereumProvider();
 
-  if (window.ethereum) {
+  if (ethereum) {
     try {
-      state.provider = new ethers.BrowserProvider(window.ethereum);
+      state.provider = new ethers.BrowserProvider(ethereum);
       const accounts = await state.provider.send("eth_accounts", []);
       
       if (accounts.length > 0) {
@@ -208,13 +220,15 @@ function initContracts(ticketAddr, managerAddr) {
 
 // Connect Wallet Action
 async function connectWallet() {
-  if (!window.ethereum) {
-    showToast("MetaMask not detected. Please install a Web3 wallet.", "warning");
+  const ethereum = getEthereumProvider();
+
+  if (!ethereum) {
+    showToast("MetaMask not detected. Please make sure the extension has permission for this page and refresh.", "warning");
     return;
   }
 
   try {
-    state.provider = new ethers.BrowserProvider(window.ethereum);
+    state.provider = new ethers.BrowserProvider(ethereum);
     await state.provider.send("eth_requestAccounts", []);
     state.signer = await state.provider.getSigner();
     state.userAddress = await state.signer.getAddress();
@@ -235,22 +249,22 @@ async function connectWallet() {
   }
 }
 
-// Switch / Add Network (Sepolia / Amoy)
 async function switchNetwork() {
-  if (!window.ethereum) {
+  const ethereum = getEthereumProvider();
+  if (!ethereum) {
     showToast("MetaMask is required to switch network", "warning");
     return;
   }
   const config = getConfig();
   try {
-    await window.ethereum.request({
+    await ethereum.request({
       method: 'wallet_switchEthereumChain',
       params: [{ chainId: config.sepoliaChainId }],
     });
   } catch (switchError) {
     if (switchError.code === 4902) {
       try {
-        await window.ethereum.request({
+        await ethereum.request({
           method: 'wallet_addEthereumChain',
           params: [{
             chainId: config.sepoliaChainId,
@@ -264,6 +278,31 @@ async function switchNetwork() {
         showToast("Failed to add Sepolia network", "error");
       }
     }
+  }
+}
+
+async function ensureSepoliaNetwork() {
+  const ethereum = getEthereumProvider();
+  if (!ethereum || !state.provider) return true;
+  try {
+    const network = await state.provider.getNetwork();
+    if (network.chainId !== 11155111n && network.chainId !== 11155111) {
+      showToast("Switching network to Sepolia Testnet...", "info");
+      await switchNetwork();
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn("Network verification check:", err);
+    return true;
+  }
+}
+
+function setupEthereumListeners() {
+  const ethereum = getEthereumProvider();
+  if (ethereum && ethereum.on) {
+    ethereum.on('chainChanged', () => window.location.reload());
+    ethereum.on('accountsChanged', () => window.location.reload());
   }
 }
 
@@ -295,6 +334,7 @@ function updateWalletUI() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initWeb3();
+  setupEthereumListeners();
   document.getElementById('btn-connect-wallet')?.addEventListener('click', connectWallet);
   document.getElementById('btn-switch-network')?.addEventListener('click', switchNetwork);
 });

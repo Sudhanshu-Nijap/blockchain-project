@@ -41,6 +41,11 @@
 
       <!-- Wallet Controls -->
       <div class="flex items-center gap-3">
+        <button id="btn-switch-network" class="flex items-center gap-2 px-3 py-1.5 text-xs font-mono bg-slate-100 text-slate-700 rounded-lg border border-slate-200 hover:bg-slate-200 transition-colors cursor-pointer" title="Click to switch wallet network to Sepolia">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span id="network-badge">Sepolia Testnet</span>
+        </button>
+
         <div id="user-address-pill" class="hidden items-center gap-2 px-3 py-1.5 text-xs font-mono bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
           <span class="address-text font-semibold">0x...</span>
         </div>
